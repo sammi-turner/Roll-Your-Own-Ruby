@@ -15,6 +15,7 @@ MAX_LINES = (Window.height / LINE_HEIGHT).floor
 
 $buffer = ["", "  Welcome to the Roll Your Own Ruby Shell", "  Type Ruby code and press Enter to execute", ""]
 $input = ""
+$cursor_pos = 0  # New variable to track cursor position
 $text_objects = []
 $shift_pressed = false
 $cursor_visible = true
@@ -46,7 +47,8 @@ def update_display
   end
 
   current_line = "#{PROMPT}#{$input}"
-  current_line += "_" if $cursor_visible
+  cursor_indicator = $cursor_visible ? "_" : " "
+  current_line = current_line.insert($cursor_pos + PROMPT.length, cursor_indicator)
   $text_objects << Text.new(
     current_line,
     x: 10, y: (visible_lines.size * LINE_HEIGHT),
@@ -81,7 +83,10 @@ end
 on :key_down do |event|
   case event.key
   when 'backspace'
-    $input.chop!
+    if $cursor_pos > 0
+      $input.slice!($cursor_pos - 1)
+      $cursor_pos -= 1
+    end
   when 'return'
     unless $input.strip.empty?
       $command_history << $input
@@ -92,31 +97,33 @@ on :key_down do |event|
     $buffer += result
     $buffer << ""  # Add a blank line after the result
     $input = ""
+    $cursor_pos = 0
   when 'space'
-    $input << ' '
+    $input.insert($cursor_pos, ' ')
+    $cursor_pos += 1
   when 'left shift', 'right shift'
     $shift_pressed = true
   when 'up'
     if $history_pointer < $command_history.size - 1
       $history_pointer += 1
       $input = $command_history[$command_history.size - 1 - $history_pointer]
+      $cursor_pos = $input.length
     end
   when 'down'
     if $history_pointer > -1
       $history_pointer -= 1
       $input = $history_pointer == -1 ? "" : $command_history[$command_history.size - 1 - $history_pointer]
+      $cursor_pos = $input.length
     end
+  when 'left'
+    $cursor_pos -= 1 if $cursor_pos > 0
+  when 'right'
+    $cursor_pos += 1 if $cursor_pos < $input.length
   else
     if event.key.length == 1
-      if $shift_pressed
-        if SHIFT_MAP.key?(event.key)
-          $input << SHIFT_MAP[event.key]
-        else
-          $input << event.key.upcase
-        end
-      else
-        $input << event.key
-      end
+      char = $shift_pressed ? (SHIFT_MAP[event.key] || event.key.upcase) : event.key
+      $input.insert($cursor_pos, char)
+      $cursor_pos += 1
     end
   end
   update_display
