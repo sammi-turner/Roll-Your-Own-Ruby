@@ -15,13 +15,14 @@ MAX_LINES = (Window.height / LINE_HEIGHT).floor
 
 $buffer = ["", "  WELCOME TO THE RYOR SHELL", ""]
 $input = ""
-$cursor_pos = 0  # New variable to track cursor position
+$cursor_pos = 0
 $text_objects = []
 $shift_pressed = false
 $cursor_visible = true
 $cursor_blink_time = 0
 $command_history = []
 $history_pointer = -1
+$binding = binding
 
 SHIFT_MAP = {
   '1' => '!', '2' => '@', '3' => '#', '4' => '$', '5' => '%',
@@ -57,23 +58,41 @@ def update_display
   )
 end
 
+def wrap_text(text, width)
+  words = text.split(' ')
+  lines = []
+  current_line = "  " # Start with two spaces
+  words.each do |word|
+    if (current_line + word).length > width
+      lines << current_line
+      current_line = "  " + word + ' ' # New line starts with two spaces
+    else
+      current_line += word + ' '
+    end
+  end
+  lines << current_line if current_line != "  "
+  lines
+end
+
 def execute_ruby(code)
   begin
     old_stdout = $stdout
     $stdout = StringIO.new
-    result = eval(code)
+    result = $binding.eval(code)
     output = $stdout.string
     $stdout = old_stdout
     output = result.inspect if output.empty?
-    output.split("\n").map { |line| "  #{line}" }  # Add two spaces to each line
+    wrap_text(output, Window.width / 10)
+  rescue SyntaxError => e
+    wrap_text("Syntax error: #{e.message}", Window.width / 10)
   rescue => e
-    ["  Error: #{e.message}"]  # Also add two spaces to error messages
+    wrap_text("Error: #{e.message}", Window.width / 10)
   end
 end
 
 def update_cursor
   $cursor_blink_time += 1
-  if $cursor_blink_time >= 30  # Adjust this value to change blink speed
+  if $cursor_blink_time >= 30
     $cursor_visible = !$cursor_visible
     $cursor_blink_time = 0
     update_display
@@ -95,7 +114,7 @@ on :key_down do |event|
     $buffer << "#{PROMPT}#{$input}"
     result = execute_ruby($input)
     $buffer += result
-    $buffer << ""  # Add a blank line after the result
+    $buffer << ""
     $input = ""
     $cursor_pos = 0
   when 'space'
