@@ -4,6 +4,8 @@
 
 A front-end for the ruby interactive shell in a single ruby script.
 
+<br>
+
 <img src="ryor-shell.png" alt="Ryor shell running" width="100%">
 
 <br>
