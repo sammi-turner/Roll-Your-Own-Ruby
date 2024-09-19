@@ -3,7 +3,7 @@
 require 'ruby2d'
 require 'stringio'
 
-set title: "Ruby Pseudo CLI"
+set title: "RYOR Shell"
 set background: 'black'
 set width: 800
 set height: 600
@@ -13,11 +13,21 @@ PROMPT = "  > "
 LINE_HEIGHT = FONT_SIZE + 4
 MAX_LINES = (Window.height / LINE_HEIGHT).floor
 
-$buffer = ["", "  Welcome to Ruby Pseudo CLI", "  Type Ruby code and press Enter to execute", ""]
+$buffer = ["", "  Welcome to the Roll Your Own Ruby Shell", "  Type Ruby code and press Enter to execute", ""]
 $input = ""
 $text_objects = []
 $shift_pressed = false
 $scroll_offset = 0
+$cursor_visible = true
+$cursor_blink_time = 0
+
+SHIFT_MAP = {
+  '1' => '!', '2' => '@', '3' => '#', '4' => '$', '5' => '%',
+  '6' => '^', '7' => '&', '8' => '*', '9' => '(', '0' => ')',
+  '-' => '_', '=' => '+', '[' => '{', ']' => '}', '\\' => '|',
+  ';' => ':', "'" => '"', ',' => '<', '.' => '>', '/' => '?',
+  '`' => '~'
+}
 
 def update_display
   $text_objects.each(&:remove)
@@ -38,6 +48,15 @@ def update_display
       size: FONT_SIZE,
       color: 'green'
     )
+
+  current_line = "#{PROMPT}#{$input}"
+  current_line += "_" if $cursor_visible
+  $text_objects << Text.new(
+    current_line,
+    x: 10, y: (visible_lines.size * LINE_HEIGHT),
+    size: FONT_SIZE,
+    color: 'white'
+  )
   end
 
   current_line = "#{PROMPT}#{$input}"
@@ -63,13 +82,14 @@ def execute_ruby(code)
   end
 end
 
-SHIFT_MAP = {
-  '1' => '!', '2' => '@', '3' => '#', '4' => '$', '5' => '%',
-  '6' => '^', '7' => '&', '8' => '*', '9' => '(', '0' => ')',
-  '-' => '_', '=' => '+', '[' => '{', ']' => '}', '\\' => '|',
-  ';' => ':', "'" => '"', ',' => '<', '.' => '>', '/' => '?',
-  '`' => '~'
-}
+def update_cursor
+  $cursor_blink_time += 1
+  if $cursor_blink_time >= 30  # Adjust this value to change blink speed
+    $cursor_visible = !$cursor_visible
+    $cursor_blink_time = 0
+    update_display
+  end
+end
 
 on :key_down do |event|
   case event.key
@@ -104,7 +124,7 @@ on :key_down do |event|
     end
   end
   update_display
-end
+end  # Add this missing end
 
 on :key_up do |event|
   if event.key == 'left shift' || event.key == 'right shift'
@@ -113,5 +133,9 @@ on :key_up do |event|
 end
 
 update_display
+
+update do
+  update_cursor
+end
 
 show
