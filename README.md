@@ -10,7 +10,7 @@ A front-end for the ruby interactive shell in a single ruby script.
 
 <br>
 
-## Pre-requisites
+## Requirements
 
 1. [Ruby](https://www.ruby-lang.org/en/)
 2. [Ruby2d](https://www.ruby2d.com/)
