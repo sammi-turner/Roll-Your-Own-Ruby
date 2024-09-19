@@ -18,15 +18,19 @@ A front-end for the ruby interactive shell in a single ruby script.
 
 ## Three ways to run the script
 
-### Run with the Ruby command
+<br>
+
+1. with the ruby command
 
 ```
 ruby ryor.rb
 ```
 
-### Permissions
+<br>
 
-Give execution permissions with
+2. by giving permissions
+
+give execution permissions with
 
 ```
 chmod +x main.rb
@@ -37,10 +41,11 @@ then run the script directly with
 ```
 ./ryor.rb
 ```
+<br>
 
-### Add to PATH variable
+3. by adding to the PATH variable
 
-Rename the file to remove the .rb extension (optional but conventional for executables)
+rename the file to remove the .rb extension (optional but conventional for executables)
 
 ```
 mv ryor.rb ryor
