@@ -20,7 +20,7 @@ A front-end for the ruby interactive shell in a single ruby script.
 
 <br>
 
-1. with the ruby command
+### 1. with the ruby command
 
 ```
 ruby ryor.rb
@@ -28,7 +28,7 @@ ruby ryor.rb
 
 <br>
 
-2. by giving permissions
+### 2. by giving permissions
 
 give execution permissions with
 
@@ -43,7 +43,7 @@ then run the script directly with
 ```
 <br>
 
-3. by adding to the PATH variable
+### 3. by adding to the PATH variable
 
 rename the file to remove the .rb extension (optional but conventional for executables)
 
