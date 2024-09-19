@@ -4,6 +4,8 @@
 
 A front-end for the ruby interactive shell in a single ruby script.
 
+<img src="ryor.png" alt="Ryor shell running" width="100%">
+
 <br>
 
 ## Pre-requisites
@@ -55,3 +57,5 @@ Then you can run the script from any directory with the command
 ```
 ryor
 ```
+
+<br>
