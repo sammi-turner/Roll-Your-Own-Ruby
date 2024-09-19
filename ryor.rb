@@ -4,16 +4,16 @@ require 'ruby2d'
 require 'stringio'
 
 set title: "RYOR Shell"
-set background: 'black'
+set background: 'navy'
 set width: 800
 set height: 600
 
-FONT_SIZE = 20
+FONT_SIZE = 18
 PROMPT = "  > "
 LINE_HEIGHT = FONT_SIZE + 4
 MAX_LINES = (Window.height / LINE_HEIGHT).floor
 
-$buffer = ["", "  Welcome to the Roll Your Own Ruby Shell", "  Type Ruby code and press Enter to execute", ""]
+$buffer = ["", "  WELCOME TO THE RYOR SHELL", ""]
 $input = ""
 $cursor_pos = 0  # New variable to track cursor position
 $text_objects = []
@@ -42,7 +42,7 @@ def update_display
       line,
       x: 10, y: i * LINE_HEIGHT,
       size: FONT_SIZE,
-      color: 'green'
+      color: 'teal'
     )
   end
 
@@ -53,7 +53,7 @@ def update_display
     current_line,
     x: 10, y: (visible_lines.size * LINE_HEIGHT),
     size: FONT_SIZE,
-    color: 'white'
+    color: 'silver'
   )
 end
 
