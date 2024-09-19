@@ -17,9 +17,10 @@ $buffer = ["", "  Welcome to the Roll Your Own Ruby Shell", "  Type Ruby code an
 $input = ""
 $text_objects = []
 $shift_pressed = false
-$scroll_offset = 0
 $cursor_visible = true
 $cursor_blink_time = 0
+$command_history = []
+$history_pointer = -1
 
 SHIFT_MAP = {
   '1' => '!', '2' => '@', '3' => '#', '4' => '$', '5' => '%',
@@ -33,13 +34,7 @@ def update_display
   $text_objects.each(&:remove)
   $text_objects.clear
 
-  total_lines = $buffer.size + 1  # +1 for the input line
-  if total_lines > MAX_LINES
-    start_index = [total_lines - MAX_LINES - $scroll_offset, 0].max
-    visible_lines = $buffer[start_index, MAX_LINES - 1]
-  else
-    visible_lines = $buffer
-  end
+  visible_lines = $buffer.last(MAX_LINES - 1)
 
   visible_lines.each_with_index do |line, i|
     $text_objects << Text.new(
@@ -48,18 +43,10 @@ def update_display
       size: FONT_SIZE,
       color: 'green'
     )
-
-  current_line = "#{PROMPT}#{$input}"
-  current_line += "_" if $cursor_visible
-  $text_objects << Text.new(
-    current_line,
-    x: 10, y: (visible_lines.size * LINE_HEIGHT),
-    size: FONT_SIZE,
-    color: 'white'
-  )
   end
 
   current_line = "#{PROMPT}#{$input}"
+  current_line += "_" if $cursor_visible
   $text_objects << Text.new(
     current_line,
     x: 10, y: (visible_lines.size * LINE_HEIGHT),
@@ -96,20 +83,29 @@ on :key_down do |event|
   when 'backspace'
     $input.chop!
   when 'return'
+    unless $input.strip.empty?
+      $command_history << $input
+      $history_pointer = -1
+    end
     $buffer << "#{PROMPT}#{$input}"
     result = execute_ruby($input)
     $buffer += result
     $buffer << ""  # Add a blank line after the result
     $input = ""
-    $scroll_offset = 0  # Reset scroll offset when new content is added
   when 'space'
     $input << ' '
   when 'left shift', 'right shift'
     $shift_pressed = true
   when 'up'
-    $scroll_offset = [$scroll_offset + 1, [$buffer.size - MAX_LINES + 1, 0].max].min
+    if $history_pointer < $command_history.size - 1
+      $history_pointer += 1
+      $input = $command_history[$command_history.size - 1 - $history_pointer]
+    end
   when 'down'
-    $scroll_offset = [$scroll_offset - 1, 0].max
+    if $history_pointer > -1
+      $history_pointer -= 1
+      $input = $history_pointer == -1 ? "" : $command_history[$command_history.size - 1 - $history_pointer]
+    end
   else
     if event.key.length == 1
       if $shift_pressed
@@ -124,7 +120,7 @@ on :key_down do |event|
     end
   end
   update_display
-end  # Add this missing end
+end
 
 on :key_up do |event|
   if event.key == 'left shift' || event.key == 'right shift'
