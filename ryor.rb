@@ -61,11 +61,11 @@ end
 def wrap_text(text, width)
   words = text.split(' ')
   lines = []
-  current_line = "  " # Start with two spaces
+  current_line = "  "
   words.each do |word|
     if (current_line + word).length > width
       lines << current_line
-      current_line = "  " + word + ' ' # New line starts with two spaces
+      current_line = "  " + word + ' '
     else
       current_line += word + ' '
     end
